@@ -1,0 +1,4 @@
+aliyun-log-python-sdk==0.6.45
+Flask==0.11.1
+prometheus-client==0.6.0
+click==6.6
