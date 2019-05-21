@@ -7,15 +7,7 @@ import click
 
 app = flask.Flask(__name__)
 
-index_html = """
-<html>
-    <head><title>Prometheus Exporter</title></head>
-    <body>
-        <h1>LogHub Prometheus Exporter</h1>
-        <p><a href='/metrics'>Metrics</a></p>
-    </body>
-</html>
-"""
+index_html = ""
 
 REGISTRY = prometheus_client.CollectorRegistry(auto_describe=False)
 g_check_point_shard = prometheus_client.Gauge('loghub_check_point_shard', 'loghub check_point'
@@ -29,6 +21,19 @@ app_endpoints = []
 app_access_key_id = ""
 app_access_key = ""
 
+
+def set_index_html(directory):
+    global index_html
+    index_html = """
+    <html>
+        <head><title>Prometheus Exporter</title></head>
+        <body>
+            <h1>LogHub Prometheus Exporter</h1>
+            <p><a href='{directory}metrics'>Metrics</a></p>
+        </body>
+    </html>
+    """.format(directory=directory)
+    pass
 
 @app.route('/')
 def index():
@@ -64,12 +69,14 @@ def metrics():
 @click.option("-k", "--access_key_id", type=str, help=u"阿里云access_key_id", default=u"")
 @click.option("-a", "--access_key", type=str, help=u"阿里云access_key", default=u"")
 @click.option("-p", "--port", type=str, help=u"端口,默认:8001", default=u"8001")
-def run(endpoints, access_key_id, access_key, port):
+@click.option("-d", "--directory", type=str, help=u"根目录,默认:/", default=u"/")
+def run(endpoints, access_key_id, access_key, port, directory):
     global app_endpoints, app_access_key_id, app_access_key
+    set_index_html(directory=directory)
     app_endpoints = endpoints.split(",")
     app_access_key_id = access_key_id
     app_access_key = access_key
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(port))
 
 
 if __name__ == "__main__":
